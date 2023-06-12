@@ -1,0 +1,24 @@
+language: minimal
+
+services:
+  - docker
+
+before_install:
+  # Install AWS CLI
+  - sudo apt-get install awscli
+  - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+  - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+  - aws configure set region $AWS_REGION
+
+script:
+  # Build the Docker image
+  - docker build -t workouts-frontend:latest -f Dockerfile .
+
+  # Tag the Docker image with the ECR repository URL
+  - docker tag workouts-frontend:latest 549538177002.dkr.ecr.ap-southeast-2.amazonaws.com/workouts-frontend:latest
+
+  # Log in to ECR
+  - eval $(aws ecr get-login --no-include-email --region $AWS_REGION)
+
+  # Push the Docker image to ECR
+  - docker push 549538177002.dkr.ecr.ap-southeast-2.amazonaws.com/workouts-frontend:latest

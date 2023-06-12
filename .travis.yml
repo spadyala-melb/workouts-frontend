@@ -15,7 +15,7 @@ script:
   - docker build -t workouts-frontend:latest -f Dockerfile .
 
   # Create the ECR repo
-  - aws ecr create-repository --repository-name workouts-frontend --region $AWS_REGION
+  # - aws ecr create-repository --repository-name workouts-frontend --region $AWS_REGION
 
   # Tag the Docker image with the ECR repository URL
   - docker tag workouts-frontend:latest 549538177002.dkr.ecr.$AWS_REGION.amazonaws.com/workouts-frontend:latest
@@ -26,17 +26,8 @@ script:
   # Push the Docker image to ECR
   - docker push 549538177002.dkr.ecr.$AWS_REGION.amazonaws.com/workouts-frontend:latest
 
-deploy:
-  provider: script
-  script:
-    # Pull the image from ECR
-    # - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <your-ecr-repository-url>
+  # Pull the Docker image from ECR
+  - docker pull 549538177002.dkr.ecr.$AWS_REGION.amazonaws.com/workouts-frontend:latest
 
-    # # Log in to ECR
-    # - eval $(aws ecr get-login --no-include-email --region $AWS_REGION)
-
-    # Pull the Docker image from ECR
-    - docker pull 549538177002.dkr.ecr.$AWS_REGION.amazonaws.com/workouts-frontend:latest
-
-    # Deploy the image to ECS
-    - aws ecs update-service --cluster workouts-ecs-cluster --service workouts-ecs-service --force-new-deployment
+  # Deploy the image to ECS
+  - aws ecs update-service --cluster workouts-ecs-cluster --service workouts-ecs-service --force-new-deployment
